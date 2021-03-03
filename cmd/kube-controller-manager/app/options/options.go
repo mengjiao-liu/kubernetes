@@ -34,7 +34,7 @@ import (
 	"k8s.io/client-go/tools/record"
 	cpoptions "k8s.io/cloud-provider/options"
 	cliflag "k8s.io/component-base/cli/flag"
-	"k8s.io/component-base/logs"
+	logsoptions "k8s.io/component-base/logs/options"
 	"k8s.io/component-base/metrics"
 	cmoptions "k8s.io/controller-manager/options"
 	kubectrlmgrconfigv1alpha1 "k8s.io/kube-controller-manager/config/v1alpha1"
@@ -90,7 +90,7 @@ type KubeControllerManagerOptions struct {
 	Authentication  *apiserveroptions.DelegatingAuthenticationOptions
 	Authorization   *apiserveroptions.DelegatingAuthorizationOptions
 	Metrics         *metrics.Options
-	Logs            *logs.Options
+	Logs            *logsoptions.Options
 
 	Master                      string
 	Kubeconfig                  string
@@ -188,7 +188,7 @@ func NewKubeControllerManagerOptions() (*KubeControllerManagerOptions, error) {
 		Authentication: apiserveroptions.NewDelegatingAuthenticationOptions(),
 		Authorization:  apiserveroptions.NewDelegatingAuthorizationOptions(),
 		Metrics:        metrics.NewOptions(),
-		Logs:           logs.NewOptions(),
+		Logs:           logsoptions.NewOptions(),
 	}
 
 	s.Authentication.RemoteKubeConfigFileOptional = true

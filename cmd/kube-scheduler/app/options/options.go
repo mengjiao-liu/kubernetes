@@ -40,7 +40,7 @@ import (
 	componentbaseconfig "k8s.io/component-base/config"
 	"k8s.io/component-base/config/options"
 	configv1alpha1 "k8s.io/component-base/config/v1alpha1"
-	"k8s.io/component-base/logs"
+	logsoptions "k8s.io/component-base/logs/options"
 	"k8s.io/component-base/metrics"
 	"k8s.io/klog/v2"
 	kubeschedulerconfigv1beta1 "k8s.io/kube-scheduler/config/v1beta1"
@@ -61,7 +61,7 @@ type Options struct {
 	Authentication          *apiserveroptions.DelegatingAuthenticationOptions
 	Authorization           *apiserveroptions.DelegatingAuthorizationOptions
 	Metrics                 *metrics.Options
-	Logs                    *logs.Options
+	Logs                    *logsoptions.Options
 	Deprecated              *DeprecatedOptions
 
 	// ConfigFile is the location of the scheduler server's configuration file.
@@ -107,7 +107,7 @@ func NewOptions() (*Options, error) {
 			HardPodAffinitySymmetricWeight: 1,
 		},
 		Metrics: metrics.NewOptions(),
-		Logs:    logs.NewOptions(),
+		Logs:    logsoptions.NewOptions(),
 	}
 
 	o.Authentication.TolerateInClusterLookupFailure = true
