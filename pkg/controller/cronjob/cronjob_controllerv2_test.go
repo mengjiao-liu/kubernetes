@@ -36,6 +36,7 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 	featuregatetesting "k8s.io/component-base/featuregate/testing"
+	"k8s.io/klog/v2/ktesting"
 	_ "k8s.io/kubernetes/pkg/apis/batch/install"
 	_ "k8s.io/kubernetes/pkg/apis/core/install"
 	"k8s.io/kubernetes/pkg/controller"
@@ -1360,6 +1361,7 @@ func (f *fakeQueue) AddAfter(key interface{}, delay time.Duration) {
 
 // this test will take around 61 seconds to complete
 func TestControllerV2UpdateCronJob(t *testing.T) {
+	_, ctx := ktesting.NewTestContext(t)
 	tests := []struct {
 		name          string
 		oldCronJob    *batchv1.CronJob
@@ -1557,7 +1559,7 @@ func TestControllerV2UpdateCronJob(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			kubeClient := fake.NewSimpleClientset()
 			sharedInformers := informers.NewSharedInformerFactory(kubeClient, controller.NoResyncPeriodFunc())
-			jm, err := NewControllerV2(sharedInformers.Batch().V1().Jobs(), sharedInformers.Batch().V1().CronJobs(), kubeClient)
+			jm, err := NewControllerV2(ctx, sharedInformers.Batch().V1().Jobs(), sharedInformers.Batch().V1().CronJobs(), kubeClient)
 			if err != nil {
 				t.Errorf("unexpected error %v", err)
 				return
@@ -1569,7 +1571,7 @@ func TestControllerV2UpdateCronJob(t *testing.T) {
 			jm.cronJobControl = &fakeCJControl{}
 			jm.recorder = record.NewFakeRecorder(10)
 
-			jm.updateCronJob(tt.oldCronJob, tt.newCronJob)
+			jm.updateCronJob(ctx, tt.oldCronJob, tt.newCronJob)
 			if queue.delay.Seconds() != tt.expectedDelay.Seconds() {
 				t.Errorf("Expected delay %#v got %#v", tt.expectedDelay.Seconds(), queue.delay.Seconds())
 			}
@@ -1578,6 +1580,7 @@ func TestControllerV2UpdateCronJob(t *testing.T) {
 }
 
 func TestControllerV2GetJobsToBeReconciled(t *testing.T) {
+	_, ctx := ktesting.NewTestContext(t)
 	trueRef := true
 	tests := []struct {
 		name     string
@@ -1657,7 +1660,7 @@ func TestControllerV2GetJobsToBeReconciled(t *testing.T) {
 			for _, job := range tt.jobs {
 				sharedInformers.Batch().V1().Jobs().Informer().GetIndexer().Add(job)
 			}
-			jm, err := NewControllerV2(sharedInformers.Batch().V1().Jobs(), sharedInformers.Batch().V1().CronJobs(), kubeClient)
+			jm, err := NewControllerV2(ctx, sharedInformers.Batch().V1().Jobs(), sharedInformers.Batch().V1().CronJobs(), kubeClient)
 			if err != nil {
 				t.Errorf("unexpected error %v", err)
 				return
